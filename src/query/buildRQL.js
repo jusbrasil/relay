@@ -31,6 +31,8 @@ export type RelayQLFragmentBuilder =
 export type RelayQLQueryBuilder =
   (Component: RelayContainer, params: Variables) => RelayConcreteNode;
 
+const ExecutionEnvironment = require('ExecutionEnvironment');
+
 // Cache results of executing fragment query builders.
 const fragmentCache = new Map();
 
@@ -100,7 +102,9 @@ const buildRQL = {
     let node;
     if (!componentCache) {
       componentCache = new Map();
-      queryCache.set(queryBuilder, componentCache);
+      if (ExecutionEnvironment.canUseDOM) {
+        queryCache.set(queryBuilder, componentCache);
+      }
     } else {
       node = componentCache.get(Component);
     }

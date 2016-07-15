@@ -24,6 +24,7 @@ const buildRQL = require('buildRQL');
 const invariant = require('invariant');
 const stableStringify = require('stableStringify');
 const warning = require('warning');
+const ExecutionEnvironment = require('ExecutionEnvironment');
 
 const queryCache = new Map();
 
@@ -36,12 +37,19 @@ function getRelayQueries(
   Component: RelayLazyContainer,
   route: RelayQueryConfigInterface
 ): RelayQuerySet {
-  let cache = queryCache.get(Component);
-  if (!cache) {
+  let cache;
+  if (ExecutionEnvironment.canUseDOM) {
+    cache = queryCache.get(Component);
+    if (!cache) {
+      cache = {};
+      queryCache.set(Component, cache);
+    }
+  } else {
     cache = {};
-    queryCache.set(Component, cache);
   }
+
   const cacheKey = route.name + ':' + stableStringify(route.params);
+
   if (cache.hasOwnProperty(cacheKey)) {
     return cache[cacheKey];
   }
