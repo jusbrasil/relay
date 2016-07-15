@@ -27,6 +27,8 @@ const invariant = require('invariant');
 const stableStringify = require('stableStringify');
 const warning = require('warning');
 
+const ExecutionEnvironment = require('ExecutionEnvironment');
+
 var queryCache = new Map();
 
 /**
@@ -38,14 +40,22 @@ function getRelayQueries(
   Component: RelayLazyContainer,
   route: RelayQueryConfigSpec
 ): RelayQuerySet {
-  if (!queryCache.has(Component)) {
-    queryCache.set(Component, {});
+  var cache;
+  if (ExecutionEnvironment.canUseDOM) {
+    if (!queryCache.has(Component)) {
+      queryCache.set(Component, {});
+    }
+
+    /* $FlowFixMe(>=0.22.0): Error discovered while adding Flow types
+     * to Map and Set. This is often because .get() can return null.
+     */
+    cache = queryCache.get(Component);
+  } else {
+    cache = {}
   }
+
   var cacheKey = route.name + ':' + stableStringify(route.params);
-  /* $FlowFixMe(>=0.22.0): Error discovered while adding Flow types
-   * to Map and Set. This is often because .get() can return null.
-   */
-  var cache = queryCache.get(Component);
+
   if (cache.hasOwnProperty(cacheKey)) {
     return cache[cacheKey];
   }
