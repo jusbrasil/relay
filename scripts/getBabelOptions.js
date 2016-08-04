@@ -22,7 +22,7 @@ module.exports = function(options) {
     presets: [
       require('babel-preset-fbjs/configure')({
         autoImport: true,
-        inlineRequires: true,
+        inlineRequires: false,
         rewriteModules: {
           map: assign({},
             require('fbjs-scripts/third-party-module-map'),
