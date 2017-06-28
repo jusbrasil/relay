@@ -24,6 +24,11 @@ const RelayRootContainer = require('RelayRootContainer');
 const RelayRoute = require('RelayRoute');
 const RelayStore = require('RelayStore');
 
+const RelayQuery = require('RelayQuery');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const RelayFragmentPointer = require('RelayFragmentPointer');
+const RelayMetaRoute = require('RelayMetaRoute');
+
 const createRelayQuery = require('createRelayQuery');
 const getRelayQueries = require('getRelayQueries');
 const isRelayContainer = require('isRelayContainer');
@@ -46,6 +51,11 @@ const RelayPublic = {
   RootContainer: RelayRootContainer,
   Route: RelayRoute,
   Store: RelayStore,
+
+  RelayQuery: RelayQuery,
+  GraphQLStoreQueryResolver: GraphQLStoreQueryResolver,
+  RelayFragmentPointer: RelayFragmentPointer,
+  RelayMetaRoute: RelayMetaRoute,
 
   createContainer: RelayContainer.create,
   createQuery: createRelayQuery,
