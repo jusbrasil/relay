@@ -25,6 +25,10 @@ const RelayRenderer = require('RelayRenderer');
 const RelayRootContainer = require('RelayRootContainer');
 const RelayRoute = require('RelayRoute');
 const RelayStore = require('RelayStore');
+const RelayQuery = require('RelayQuery');
+const GraphQLStoreQueryResolver = require('GraphQLStoreQueryResolver');
+const RelayFragmentPointer = require('RelayFragmentPointer');
+const RelayMetaRoute = require('RelayMetaRoute');
 
 const createRelayQuery = require('createRelayQuery');
 const getRelayQueries = require('getRelayQueries');
@@ -58,6 +62,11 @@ const RelayPublic = {
   injectNetworkLayer: RelayStore.injectNetworkLayer.bind(RelayStore),
   injectTaskScheduler: RelayStore.injectTaskScheduler.bind(RelayStore),
   isContainer: isRelayContainer,
+
+  RelayQuery: RelayQuery,
+  GraphQLStoreQueryResolver: GraphQLStoreQueryResolver,
+  RelayFragmentPointer: RelayFragmentPointer,
+  RelayMetaRoute: RelayMetaRoute,
 };
 
 module.exports = RelayPublic;
