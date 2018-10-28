@@ -313,65 +313,69 @@ function handleRangeAdd(
   const store = writer.getRecordStore();
 
   // Extracts the new edge from the payload
-  const edge = getObject(payload, config.edgeName);
-  const edgeNode = edge && getObject(edge, NODE);
-  if (!edge || !edgeNode) {
-    return;
-  }
+  const res = getObjectOrArray(payload, config.edgeName);
+  const edges = Array.isArray(res) ? res : [res];
 
-  // Extract the id of the node with the connection that we are adding to.
-  let connectionParentID = config.parentID;
-  if (!connectionParentID) {
-    const edgeSource = getObject(edge, 'source');
-    if (edgeSource) {
-      connectionParentID = getString(edgeSource, ID);
+  edges.forEach(edge => {
+    const edgeNode = edge && getObject(edge, NODE);
+    if (!edge || !edgeNode) {
+      return;
     }
-  }
-  invariant(
-    connectionParentID,
-    'writeRelayUpdatePayload(): Cannot insert edge without a configured ' +
-      '`parentID` or a `%s.source.id` field.',
-    config.edgeName,
-  );
 
-  const nodeID = getString(edgeNode, ID) || generateClientID();
-  const cursor = edge.cursor || STUB_CURSOR_ID;
-  const edgeData = {
-    ...edge,
-    cursor: cursor,
-    node: {
-      ...edgeNode,
-      id: nodeID,
-    },
-  };
-
-  // add the node to every connection for this field
-  const connectionIDs = store.getConnectionIDsForField(
-    connectionParentID,
-    config.connectionName,
-  );
-  if (connectionIDs) {
-    connectionIDs.forEach(connectionID =>
-      addRangeNode(writer, operation, config, connectionID, nodeID, edgeData),
-    );
-  }
-
-  if (isOptimisticUpdate) {
-    // optimistic updates need to record the generated client ID for
-    // a to-be-created node
-    RelayMutationTracker.putClientIDForMutation(nodeID, clientMutationID);
-  } else {
-    // non-optimistic updates check for the existence of a generated client
-    // ID (from the above `if` clause) and link the client ID to the actual
-    // server ID.
-    const clientNodeID = RelayMutationTracker.getClientIDForMutation(
-      clientMutationID,
-    );
-    if (clientNodeID) {
-      RelayMutationTracker.updateClientServerIDMap(clientNodeID, nodeID);
-      RelayMutationTracker.deleteClientIDForMutation(clientMutationID);
+    // Extract the id of the node with the connection that we are adding to.
+    let connectionParentID = config.parentID;
+    if (!connectionParentID) {
+      const edgeSource = getObject(edge, 'source');
+      if (edgeSource) {
+        connectionParentID = getString(edgeSource, ID);
+      }
     }
-  }
+    invariant(
+      connectionParentID,
+      'writeRelayUpdatePayload(): Cannot insert edge without a configured ' +
+        '`parentID` or a `%s.source.id` field.',
+      config.edgeName,
+    );
+
+    const nodeID = getString(edgeNode, ID) || generateClientID();
+    const cursor = edge.cursor || STUB_CURSOR_ID;
+    const edgeData = {
+      ...edge,
+      cursor: cursor,
+      node: {
+        ...edgeNode,
+        id: nodeID,
+      },
+    };
+
+    // add the node to every connection for this field
+    const connectionIDs = store.getConnectionIDsForField(
+      connectionParentID,
+      config.connectionName,
+    );
+    if (connectionIDs) {
+      connectionIDs.forEach(connectionID =>
+        addRangeNode(writer, operation, config, connectionID, nodeID, edgeData),
+      );
+    }
+
+    if (isOptimisticUpdate) {
+      // optimistic updates need to record the generated client ID for
+      // a to-be-created node
+      RelayMutationTracker.putClientIDForMutation(nodeID, clientMutationID);
+    } else {
+      // non-optimistic updates check for the existence of a generated client
+      // ID (from the above `if` clause) and link the client ID to the actual
+      // server ID.
+      const clientNodeID = RelayMutationTracker.getClientIDForMutation(
+        clientMutationID,
+      );
+      if (clientNodeID) {
+        RelayMutationTracker.updateClientServerIDMap(clientNodeID, nodeID);
+        RelayMutationTracker.deleteClientIDForMutation(clientMutationID);
+      }
+    }
+  });
 }
 
 /**
