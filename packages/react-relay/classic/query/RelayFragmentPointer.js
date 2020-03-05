@@ -176,7 +176,8 @@ function getRootFragment(query: RelayQuery.Root): ?RelayQuery.Fragment {
   }
   let fragment;
   query.getChildren().forEach(child => {
-    if (child instanceof RelayQuery.Fragment) {
+    if (child instanceof RelayQuery.Fragment ||
+      (child.__concreteNode__ && child.__concreteNode__.kind === 'Fragment')) {
       invariant(
         !fragment,
         'Queries supplied at the root should contain exactly one fragment ' +
